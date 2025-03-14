@@ -1,5 +1,25 @@
-# Prerequisites
-*.d
+# Unity generated folders
+[Ll]ibrary/
+[Tt]emp/
+Obj/
+Build/
+Builds/
+
+# Unity specific files
+UserSettings/
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Unity3D settings
+*.swp
+*.swo
+
+# Visual Studio
+.vs/
 
 # Compiled Object files
 *.slo
@@ -30,3 +50,6 @@
 *.exe
 *.out
 *.app
+
+
+
