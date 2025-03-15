@@ -46,15 +46,19 @@ public class PlayerController : MonoBehaviour
     {
         movement = playerControls.Movement.Move.ReadValue<Vector2>();
 
+        // Set movement parameters for animation
         myAnimator.SetFloat("moveX", movement.x);
         myAnimator.SetFloat("moveY", movement.y);
 
+        float speed = movement.magnitude;
+
         // Add dead zone to avoid tiny inputs being registered
-        if (movement.magnitude < 0.1f)
+        if (speed < 0.1f)
         {
             movement = Vector2.zero;
         }
     }
+
 
     private void Move()
     {
