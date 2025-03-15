@@ -1,5 +1,6 @@
 # gameDev_Project
 Gamedev Project - Game101
+Team: Allan Perez And Hector Moreno. 
 
 
 Game Definition:
