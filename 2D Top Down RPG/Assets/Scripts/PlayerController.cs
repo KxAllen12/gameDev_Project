@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public bool FacingLeft { get { return facingLeft; } set { facingLeft = value; } }
     [SerializeField] private float moveSpeed = 1f;
 
     private PlayerControls playerControls;
@@ -12,6 +11,9 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private Animator myAnimator;
     private SpriteRenderer mySpriteRenderer;
+    private Camera mainCamera;
+
+    private bool facingLeft = false;
 
     private void Awake()
     {
@@ -19,6 +21,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
         mySpriteRenderer = GetComponent<SpriteRenderer>();
+        mainCamera = Camera.main;
     }
 
     private void OnEnable()
@@ -34,12 +37,12 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         PlayerInput();
+        UpdateFacingDirection();
     }
 
     private void FixedUpdate()
     {
         Move();
-        AdjustPlayerFacingDirection();
     }
 
     private void PlayerInput()
@@ -50,31 +53,47 @@ public class PlayerController : MonoBehaviour
         myAnimator.SetFloat("moveX", movement.x);
         myAnimator.SetFloat("moveY", movement.y);
 
-        float speed = movement.magnitude;
-
         // Add dead zone to avoid tiny inputs being registered
-        if (speed < 0.1f)
+        if (movement.magnitude < 0.1f)
         {
             movement = Vector2.zero;
         }
     }
-
 
     private void Move()
     {
         rb.MovePosition(rb.position + movement * (moveSpeed * Time.deltaTime));
     }
 
-    public void AdjustPlayerFacingDirection()
+    private void UpdateFacingDirection()
     {
-        // No flipping of sprite when moving up or down, only left or right
-        if (movement.x < 0)
+        // Priority system: Mouse position overrides movement direction
+        Vector2 mouseScreenPosition = Mouse.current.position.ReadValue();
+        Vector2 mouseWorldPosition = mainCamera.ScreenToWorldPoint(mouseScreenPosition);
+
+        // Only consider left/right (ignore Y-axis difference)
+        if (mouseWorldPosition.x < transform.position.x)
         {
-            mySpriteRenderer.flipX = true;  // Flip to the left when moving left
+            mySpriteRenderer.flipX = true;  // Face left
+            facingLeft = true;
         }
-        else if (movement.x > 0)
+        else if (mouseWorldPosition.x > transform.position.x)
         {
-            mySpriteRenderer.flipX = false;  // Face right when moving right
+            mySpriteRenderer.flipX = false; // Face right
+            facingLeft = false;
+        }
+
+        // Fallback to movement direction if mouse isn't moving much
+        if (Vector2.Distance(mouseScreenPosition, mainCamera.WorldToScreenPoint(transform.position)) < 10f)
+        {
+            if (movement.x < -0.1f)
+            {
+                mySpriteRenderer.flipX = true;
+            }
+            else if (movement.x > 0.1f)
+            {
+                mySpriteRenderer.flipX = false;
+            }
         }
     }
 }
